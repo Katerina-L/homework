@@ -4,44 +4,66 @@ const todos = [
     { name: 'task3', key: 3, status: 'done'},
     { name: 'task4', key: 4, status: 'active'},
     { name: 'task5', key: 5, status: 'active'},
+    { name: 'task6', key: 6, status: 'active' },
+    { name: 'task7', key: 7, status: 'active' }
     ];
-    const parent = document.querySelector("body > div > div:nth-child(4) > ul");
+    let filter = false;
+
+    let parent = document.querySelector("body > div > div:nth-child(4) > ul");
     parent.innerHTML = '';
-    /* <li data-id="1614959130076">
-    <div class="todo">
-        <input type="checkbox" class="toggle">
-        <span>To</span>
-        <button class="destroy"></button>
-    </div><input type="text" class="edit"></li> */
-    for (let i = 0; i < todos.length; i++) {
-    let todo = todos[i];
-    //parent.innerHTML += `<li data-id="${todo.id}">${todo.name}</li>`;
-    let newLi = document.createElement("li");
-    let newDiv = document.createElement("div");
-    let input = document.createElement("input");
-    let span = document.createElement("span");
-    let button = document.createElement("button");
 
-    //newLi.innerText = `${todo.name}`;
-    newDiv.classList.add('todo');
+    const renderList = function () {
+        parent.innerHTML = '';
+        let todosList = [...todos];
+        if(filter && filter !== 'all'){
+            todosList = todos.filter((element) => {
+                return element.status === filter;
+            });
+        }
 
-    input.setAttribute('type', 'checkbox');
-    input.classList.add('toggle');
-    span.innerText = `${todo.name}`;
+        for (let i = 0; i < todosList.length; i++) {
+            let todo = todosList[i];
+            //parent.innerHTML += `<li data-id="${todo.id}">${todo.name}</li>`;
+            let newLi = document.createElement("li");
+            let newDiv = document.createElement("div");
+            let input = document.createElement("input");
+            let span = document.createElement("span");
+            let button = document.createElement("button");
 
-    button.classList.add('destroy');
+            //newLi.innerText = `${todo.name}`;
+            newDiv.classList.add('todo');
 
-    newDiv.append(input, span, button);
+            input.setAttribute('type', 'checkbox');
+            input.classList.add('toggle');
+            span.innerText = `${todo.name}`;
 
-    newLi.appendChild(newDiv);
+            button.classList.add('destroy');
 
-    newLi.onclick = function (){
-        alert(111);
+            newDiv.append(input, span, button);
+
+            newLi.appendChild(newDiv);
+
+            /*newLi.onclick = function (){
+                alert(111);
+            }*/
+
+            parent.appendChild(newLi);
+            }
+    }
+    renderList();
+    renderBar ();
+
+    const form = document.getElementById('insert__form');
+    form.onsubmit = function (event) {
+    event.preventDefault();
+    let input = event.currentTarget.firstElementChild;
+    todos.push({name: input.value, key: todos.length + 1, status: 'active'});
+    input.value = '';
+    renderList();
+    renderBar ();
     }
 
-    parent.appendChild(newLi);
-    }
-
+    function renderBar () {
      const jsBar = document.getElementById("js-bar");
      jsBar.innerHTML = '';
 
@@ -68,9 +90,9 @@ const todos = [
      Li1.appendChild(a1);
      a1.setAttribute('data-status', 'all');
 
-     a1.onclick = function (){
+      /*a1.onclick = function (){
         alert("note: alert All");
-    }
+    }*/
 
      let Li2 = document.createElement("li");
      let a2= document.createElement("a");
@@ -79,20 +101,20 @@ const todos = [
      a2.setAttribute('data-status', 'active');
      Li2.appendChild(a2);
 
-     a2.onclick = function (){
-        alert("note: alert Active");
-    }
+      /*a2.onclick = function (){
+     alert("note: alert Active");
+    }*/
 
      let Li3 = document.createElement("li");
      let a3= document.createElement("a");
      a3.innerHTML = 'Completed';
      a3.classList.add('button');
-     a3.setAttribute('data-status', 'completed');
+     a3.setAttribute('data-status', 'done');
      Li3.appendChild(a3);
 
-     a3.onclick = function (){
-        alert("note: alert Completed");
-    }
+      /*a3.onclick = function (){
+     alert("note: alert Completed");
+    }*/
 
      ul.append(Li1, Li2, Li3);
 
@@ -104,30 +126,42 @@ const todos = [
      button.classList.add('button--clear');
      button.classList.add('button');
 
-     button.onclick = function (){
-        alert("note: alert Clear Completed");
-    }
+     /*button.onclick = function (){
+     alert("note: alert Clear Completed");
+    }*/
 
      div3.append(button)
-
 
      jsBar.appendChild(div1);
      div1.appendChild(span2);
      jsBar.appendChild(div2);
      jsBar.appendChild(div3);
 
-
-
-
-
-
-
-
-
      jsBar.style.background = 'Cyan';
      //const span = document.querySelector("span");
     // меняем его HTML, todos.length = кол во элементов в массиве
     //span.innerHTML = `${todos.length} items left`;
+    }
+   // let links = document.querySelectorAll('#js-filters a.button');// событие вешаем на тег а
+   let links = document.querySelectorAll('#js-filters li');
+    links.forEach(function(element){
+        element.addEventListener('click',function(event){
+           // alert(event.currentTarget.innerText); //вариант 1
+          //let {innerText} = event.currentTarget; //вариант 2
+          //alert(innerText);
+          let links = document.querySelectorAll('a.selected');
+          links.forEach(function(element){
+                element.classList.remove('selected');
+          });
+          //let currentTarget = event.currentTarget;//вариант 1
+          let {currentTarget} = event;
+          currentTarget.children[0].classList.add('selected');
+
+          filter = currentTarget.children[0].dataset.status;
+
+          renderList();
+        });
+    });
 
     const list = document.querySelectorAll("body > div > div:nth-child(4) > ul > li");
     for (let i = 0; i < list.length; i++) {
